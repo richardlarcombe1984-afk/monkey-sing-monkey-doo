@@ -1,0 +1,26 @@
+{
+  "name": "Monkey Sing Monkey Doo",
+  "short_name": "Monkey Doo",
+  "description": "Fun music, rhythm games and calm time with CJ, Diko and Lola for kids ages 3-8",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF8E7",
+  "theme_color": "#1E90FF",
+  "lang": "en",
+  "categories": ["kids", "education", "music", "games"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
