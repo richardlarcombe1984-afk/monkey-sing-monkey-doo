@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1E90FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Monkey Doo">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Monkey Sing Monkey Doo</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root { --primary: #1E90FF; --secondary: #FFD700; --bg: #FFF8E7; --text: #2C3E50; --success: #2ECC71; --calm: #9B59B6; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100dvh; overflow-x: hidden; }
+        .app { max-width: 480px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; position: relative; }
+        header { background: linear-gradient(135deg, #1E90FF, #00BFFF); color: white; padding: 12px 16px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
+        header h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
+        header p { font-size: 0.75rem; opacity: 0.9; margin-top: 2px; }
+        .lang-select { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 10px; border-radius: 20px; font-size: 0.8rem; }
+        nav { display: flex; background: white; border-top: 1px solid #eee; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -2px 10px rgba(0,0,0,0.08); padding-bottom: env(safe-area-inset-bottom); }
+        nav button { flex: 1; padding: 10px 4px; border: none; background: none; font-size: 0.7rem; color: #666; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+        nav button.active { color: var(--primary); font-weight: 700; }
+        nav button span { font-size: 1.4rem; }
+        main { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 20px; }
+        .screen { display: none; animation: fadeIn 0.3s ease; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--primary); color: white; border: none; padding: 14px 24px; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; transition: transform 0.15s, box-shadow 0.15s; }
+        .btn:active { transform: scale(0.97); }
+        .btn.secondary { background: var(--secondary); color: #333; }
+        .btn.calm { background: var(--calm); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .episode-card { position: relative; border-radius: 16px; overflow: hidden; background: #f0f0f0; aspect-ratio: 16/10; cursor: pointer; }
+        .episode-card img { width: 100%; height: 100%; object-fit: cover; }
+        .episode-card .play-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 56px; height: 56px; background: rgba(30,144,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.6rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .episode-card .label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.75)); color: white; padding: 20px 12px 10px; font-size: 0.85rem; font-weight: 700; }
+        .character { text-align: center; padding: 12px; }
+        .character .emoji { font-size: 3rem; }
+        .character h3 { margin: 6px 0 2px; font-size: 1rem; }
+        .character p { font-size: 0.75rem; color: #666; }
+        .rhythm-area { text-align: center; padding: 20px 0; }
+        .beat-pad { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(145deg, #1E90FF, #00BFFF); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem; box-shadow: 0 8px 25px rgba(30,144,255,0.4); cursor: pointer; user-select: none; transition: transform 0.1s; }
+        .beat-pad:active, .beat-pad.active { transform: scale(0.92); }
+        .score { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+        .breath-circle { width: 160px; height: 160px; border-radius: 50%; background: linear-gradient(145deg, #9B59B6, #8E44AD); margin: 20px auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.1rem; font-weight: 700; animation: none; }
+        .breath-circle.inhale { animation: inhale 4s ease-in-out infinite; }
+        @keyframes inhale { 0%, 100% { transform: scale(0.85); } 50% { transform: scale(1.1); } }
+        .shop-tier { border: 2px solid #eee; border-radius: 14px; padding: 14px; margin-bottom: 12px; }
+        .shop-tier.featured { border-color: var(--primary); background: #f0f8ff; }
+        .price { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+        .badge { display: inline-block; background: var(--secondary); color: #333; font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 10px; margin-left: 6px; }
+        .install-banner { background: linear-gradient(90deg, #FFD700, #FFA500); color: #333; padding: 10px 16px; text-align: center; font-weight: 700; font-size: 0.9rem; cursor: pointer; display: none; }
+        .install-banner.show { display: block; }
+        footer { text-align: center; padding: 16px; font-size: 0.7rem; color: #888; }
+        .hidden { display: none !important; }
+        @media (min-width: 600px) { .app { max-width: 520px; box-shadow: 0 0 40px rgba(0,0,0,0.1); } }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="install-banner" id="installBanner">📲 Tap here to Install App</div>
+        <header>
+            <select class="lang-select" id="langSelect" aria-label="Language">
+                <option value="en">EN</option>
+                <option value="es">ES</option>
+                <option value="fr">FR</option>
+                <option value="de">DE</option>
+                <option value="pt">PT</option>
+                <option value="zh">中文</option>
+                <option value="ar">العربية</option>
+                <option value="hi">हिन्दी</option>
+            </select>
+            <h1>🐵 Monkey Sing Monkey Doo</h1>
+            <p id="tagline">Music for every child, everywhere</p>
+        </header>
+
+        <main>
+            <!-- HOME -->
+            <div class="screen active" id="home">
+                <div class="card" style="text-align:center; background: linear-gradient(135deg,#e0f7fa,#fff8e7);">
+                    <div style="font-size:3rem;">🎵</div>
+                    <h2 style="margin:8px 0;">Welcome!</h2>
+                    <p style="font-size:0.9rem;color:#555;">Sing, move, play and feel calm with CJ, Diko & Lola</p>
+                </div>
+                <div class="grid">
+                    <div class="card character" onclick="showScreen('series')">
+                        <div class="emoji">📺</div>
+                        <h3>Series</h3>
+                        <p>Watch & join in</p>
+                    </div>
+                    <div class="card character" onclick="showScreen('play')">
+                        <div class="emoji">🥁</div>
+                        <h3>Play</h3>
+                        <p>Rhythm games</p>
+                    </div>
+                    <div class="card character" onclick="showScreen('songs')">
+                        <div class="emoji">🎤</div>
+                        <h3>Songs</h3>
+                        <p>Sing along</p>
+                    </div>
+                    <div class="card character" onclick="showScreen('calm')">
+                        <div class="emoji">💜</div>
+                        <h3>Calm</h3>
+                        <p>Breathe with Lola</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:10px;">Meet the friends</h3>
+                    <div class="grid">
+                        <div class="character"><div class="emoji">🐵</div><h3>CJ</h3><p>Energy & rhythm</p></div>
+                        <div class="character"><div class="emoji">🐒</div><h3>Diko</h3><p>Curiosity</p></div>
+                        <div class="character"><div class="emoji">🐶</div><h3>Lola</h3><p>Calm & kindness</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SERIES -->
+            <div class="screen" id="series">
+                <h2 style="margin-bottom:12px;">📺 Mini Series</h2>
+                <div class="card">
+                    <div class="episode-card" onclick="playEpisode(1)">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#87CEEB,#98D8C8);display:flex;align-items:center;justify-content:center;font-size:3rem;">🏡</div>
+                        <div class="play-btn">▶</div>
+                        <div class="label">Ep 1 · Welcome to Monkey Melody Village</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="episode-card" onclick="playEpisode(2)">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#FFD700,#FFA07A);display:flex;align-items:center;justify-content:center;font-size:3rem;">🎙️</div>
+                        <div class="play-btn">▶</div>
+                        <div class="label">Ep 2 · Song Studio Fun</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="episode-card" onclick="playEpisode(3)">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#9B59B6,#3498DB);display:flex;align-items:center;justify-content:center;font-size:3rem;">🌙</div>
+                        <div class="play-btn">▶</div>
+                        <div class="label">Ep 3 · Night Close & Lullaby</div>
+                    </div>
+                </div>
+                <h3 style="margin:16px 0 10px;">Upcoming Episodes</h3>
+                <div class="card">
+                    <div class="episode-card" onclick="playEpisode(5)">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#5DADE2,#85C1E9);display:flex;align-items:center;justify-content:center;font-size:3rem;">🌧️</div>
+                        <div class="play-btn">▶</div>
+                        <div class="label">Ep 5 · The Rainy Day Band</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="episode-card" onclick="playEpisode(6)">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#F9E79F,#F5B7B1);display:flex;align-items:center;justify-content:center;font-size:3rem;">🎂</div>
+                        <div class="play-btn">▶</div>
+                        <div class="label">Ep 6 · Lola’s Birthday Song</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="episode-card" onclick="playEpisode(7)">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#D7BDE2,#A9CCE3);display:flex;align-items:center;justify-content:center;font-size:3rem;">🔍</div>
+                        <div class="play-btn">▶</div>
+                        <div class="label">Ep 7 · Diko’s Lost Beat</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="episode-card" onclick="playEpisode(8)">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#ABEBC6,#F9E79F);display:flex;align-items:center;justify-content:center;font-size:3rem;">🌍</div>
+                        <div class="play-btn">▶</div>
+                        <div class="label">Ep 8 · Friends From Far Away</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLAY -->
+            <div class="screen" id="play">
+                <h2 style="margin-bottom:12px;">🥁 Rhythm Play</h2>
+                <div class="card rhythm-area">
+                    <p style="margin-bottom:12px;">Tap the drum to the beat!</p>
+                    <div class="beat-pad" id="beatPad" ontouchstart="hitBeat(event)" onmousedown="hitBeat(event)">🥁</div>
+                    <div class="score">Score: <span id="score">0</span></div>
+                    <p style="margin-top:8px;font-size:0.85rem;color:#666;">Combo: <span id="combo">0</span></p>
+                    <button class="btn secondary" style="margin-top:16px;" onclick="resetGame()">Reset</button>
+                </div>
+                <div class="card">
+                    <h3>How to play</h3>
+                    <p style="font-size:0.9rem;margin-top:6px;">Listen to the rhythm and tap along. Great for building timing and confidence!</p>
+                </div>
+            </div>
+
+            <!-- SONGS -->
+            <div class="screen" id="songs">
+                <h2 style="margin-bottom:12px;">🎤 Songs</h2>
+                <div class="card" onclick="playEpisode(1)" style="cursor:pointer;">
+                    <strong>Welcome Song</strong>
+                    <p style="font-size:0.85rem;color:#666;">Clap your hands, stomp your feet — join the fun!</p>
+                </div>
+                <div class="card" onclick="playEpisode(2)" style="cursor:pointer;">
+                    <strong>Song Studio Groove</strong>
+                    <p style="font-size:0.85rem;color:#666;">Make music together in the studio</p>
+                </div>
+                <div class="card" onclick="playEpisode(3)" style="cursor:pointer;">
+                    <strong>Lola’s Lullaby</strong>
+                    <p style="font-size:0.85rem;color:#666;">Soft and gentle for wind-down time</p>
+                </div>
+                <div class="card" onclick="playEpisode(5)" style="cursor:pointer;">
+                    <strong>Rainy Day Band</strong>
+                    <p style="font-size:0.85rem;color:#666;">Pots, pans and rainy day rhythm</p>
+                </div>
+            </div>
+
+            <!-- CALM -->
+            <div class="screen" id="calm">
+                <h2 style="margin-bottom:12px;">💜 Calm Space with Lola</h2>
+                <div class="card" style="text-align:center;">
+                    <p style="margin-bottom:8px;">Breathe with Lola</p>
+                    <div class="breath-circle" id="breathCircle">Breathe in...</div>
+                    <button class="btn calm" id="breathBtn" onclick="toggleBreath()">Start Breathing</button>
+                </div>
+                <div class="card">
+                    <h3>How are you feeling?</h3>
+                    <div class="grid" style="margin-top:10px;">
+                        <button class="btn secondary" onclick="feel('happy')">😊 Happy</button>
+                        <button class="btn secondary" onclick="feel('calm')">😌 Calm</button>
+                        <button class="btn secondary" onclick="feel('sad')">😢 Sad</button>
+                        <button class="btn secondary" onclick="feel('worried')">😟 Worried</button>
+                    </div>
+                    <p id="feelMsg" style="margin-top:12px;font-size:0.9rem;color:#666;"></p>
+                </div>
+            </div>
+
+            <!-- SHOP -->
+            <div class="screen" id="shop">
+                <h2 style="margin-bottom:12px;">🛒 Shop & Plans</h2>
+                <div class="shop-tier">
+                    <strong>Free</strong>
+                    <div class="price">$0</div>
+                    <p style="font-size:0.85rem;">Core songs • Limited games • Calm Space</p>
+                </div>
+                <div class="shop-tier featured">
+                    <strong>Premium</strong> <span class="badge">Popular</span>
+                    <div class="price">$4.99 / mo</div>
+                    <p style="font-size:0.85rem;">or $39.99 / year • Full library • Offline • No ads</p>
+                </div>
+                <div class="shop-tier">
+                    <strong>Family</strong>
+                    <div class="price">$7.99 / mo</div>
+                    <p style="font-size:0.85rem;">or $59.99 / year • Up to 6 profiles • Educator notes</p>
+                </div>
+                <div class="card" style="margin-top:16px;">
+                    <p style="font-size:0.8rem;color:#666;">A portion of proceeds supports children in need and animal welfare. ❤️</p>
+                </div>
+            </div>
+
+            <!-- EPISODE PLAYER -->
+            <div class="screen" id="player">
+                <button class="btn secondary" style="width:auto;margin-bottom:12px;" onclick="showScreen('series')">← Back</button>
+                <div class="card" id="episodeContent">
+                    <h2 id="epTitle">Episode</h2>
+                    <div id="epBody" style="margin-top:12px;line-height:1.5;"></div>
+                    <button class="btn" style="margin-top:16px;" onclick="nextStep()">Next ▶</button>
+                </div>
+            </div>
+        </main>
+
+        <nav>
+            <button class="active" data-screen="home" onclick="showScreen('home')"><span>🏠</span>Home</button>
+            <button data-screen="series" onclick="showScreen('series')"><span>📺</span>Series</button>
+            <button data-screen="play" onclick="showScreen('play')"><span>🥁</span>Play</button>
+            <button data-screen="songs" onclick="showScreen('songs')"><span>🎤</span>Songs</button>
+            <button data-screen="calm" onclick="showScreen('calm')"><span>💜</span>Calm</button>
+            <button data-screen="shop" onclick="showScreen('shop')"><span>🛒</span>Shop</button>
+        </nav>
+
+        <footer>Music for every child, everywhere · Monkey Sing Monkey Doo</footer>
+    </div>
+
+    <script>
+        // Simple audio context for beat
+        let audioCtx;
+        function playDrum() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.frequency.value = 150; osc.type = 'triangle';
+                gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            } catch(e) {}
+            if (navigator.vibrate) navigator.vibrate(40);
+        }
+
+        let score = 0, combo = 0;
+        function hitBeat(e) {
+            e.preventDefault();
+            playDrum();
+            document.getElementById('beatPad').classList.add('active');
+            setTimeout(() => document.getElementById('beatPad').classList.remove('active'), 100);
+            score += 10 + Math.min(combo * 2, 50);
+            combo++;
+            document.getElementById('score').textContent = score;
+            document.getElementById('combo').textContent = combo;
+        }
+        function resetGame() { score = 0; combo = 0; document.getElementById('score').textContent = 0; document.getElementById('combo').textContent = 0; }
+
+        // Breathing
+        let breathing = false;
+        function toggleBreath() {
+            const circle = document.getElementById('breathCircle');
+            const btn = document.getElementById('breathBtn');
+            breathing = !breathing;
+            if (breathing) {
+                circle.classList.add('inhale');
+                circle.textContent = 'Breathe in...';
+                btn.textContent = 'Stop';
+                let phase = 0;
+                window.breathInterval = setInterval(() => {
+                    phase = (phase + 1) % 2;
+                    circle.textContent = phase ? 'Breathe out...' : 'Breathe in...';
+                }, 4000);
+            } else {
+                circle.classList.remove('inhale');
+                circle.textContent = 'Breathe in...';
+                btn.textContent = 'Start Breathing';
+                clearInterval(window.breathInterval);
+            }
+        }
+        function feel(mood) {
+            const msgs = {
+                happy: 'Yay! Let’s share that happy feeling with a song! 🎉',
+                calm: 'Lola is proud of you for feeling calm. 💜',
+                sad: 'It’s okay to feel sad. Lola is here with you. Would you like a soft song?',
+                worried: 'Big feelings are okay. Let’s take three slow breaths together.'
+            };
+            document.getElementById('feelMsg').textContent = msgs[mood] || '';
+        }
+
+        // Episode interactive stories
+        const episodes = {
+            1: {
+                title: 'Ep 1 · Welcome to Monkey Melody Village',
+                steps: [
+                    '🎵 Opening song: “Clap your hands, stomp your feet, everybody sing with me!”',
+                    'CJ waves hello: “Hi friends! Come join us in Monkey Melody Village!”',
+                    'Diko shows the path: “Follow me to the Song Studio!”',
+                    'Lola smiles: “Everyone belongs here. However you join in is perfect.”',
+                    '💜 Soft close: Take a big breath together. Great job joining in today!'
+                ]
+            },
+            2: {
+                title: 'Ep 2 · Song Studio Fun',
+                steps: [
+                    '🎵 Opening: “In the Song Studio we make music every day!”',
+                    'CJ starts a beat. Can you clap along?',
+                    'Diko finds a new sound. What sound can you make?',
+                    'Everyone plays together — high energy!',
+                    '💜 Lola helps everyone settle: soft humming and a calm breath.'
+                ]
+            },
+            3: {
+                title: 'Ep 3 · Night Close & Lullaby',
+                steps: [
+                    '🌙 The sun is setting over Monkey Melody Village.',
+                    'CJ and Diko stretch and yawn. “What a fun day!”',
+                    'Lola begins a soft lullaby. Can you breathe slowly with her?',
+                    '“Close your eyes… feel safe… you did great today.”',
+                    '💜 End with quiet: “See you tomorrow, friends.”'
+                ]
+            },
+            5: {
+                title: 'Ep 5 · The Rainy Day Band',
+                steps: [
+                    '🌧️ Rain is falling on Monkey Melody Village!',
+                    'CJ and Diko grab pots and pans. “Let’s make a rainy day band!”',
+                    'Can you drum along with the rain drops?',
+                    'Lola feels a bit worried about the thunder. Friends help her feel safe.',
+                    '💜 Soft ending: Rain slows… everyone breathes together. “We made music and helped a friend.”'
+                ]
+            },
+            6: {
+                title: 'Ep 6 · Lola’s Birthday Song',
+                steps: [
+                    '🎂 It’s Lola’s birthday! CJ and Diko have a surprise.',
+                    'They gather friends to sing a special birthday song.',
+                    'Can you sing “Happy Birthday” with them?',
+                    'Lola feels big happy feelings — and a little overwhelmed. Friends help her feel calm.',
+                    '💜 Soft celebration close: “Thank you for sharing my day. You belong here.”'
+                ]
+            },
+            7: {
+                title: 'Ep 7 · Diko’s Lost Beat',
+                steps: [
+                    '🔍 Diko can’t find his favourite beat!',
+                    'CJ and Lola help him listen carefully around the village.',
+                    'Can you help listen? Soft sounds… louder sounds…',
+                    'They discover the beat was inside all along — by staying calm and listening.',
+                    '💜 Close: “Sometimes the best music starts with quiet listening.”'
+                ]
+            },
+            8: {
+                title: 'Ep 8 · Friends From Far Away',
+                steps: [
+                    '🌍 New friends arrive from far away with different songs and instruments!',
+                    'CJ, Diko and Lola welcome them with open hearts.',
+                    'Everyone shares a little of their music. Can you join the new rhythms?',
+                    'They discover that different sounds make the song even better.',
+                    '💜 Close: “Music is for every child, everywhere. You belong in the song.”'
+                ]
+            }
+        };
+
+        let currentEp = null, stepIdx = 0;
+        function playEpisode(id) {
+            currentEp = episodes[id];
+            if (!currentEp) return;
+            stepIdx = 0;
+            document.getElementById('epTitle').textContent = currentEp.title;
+            document.getElementById('epBody').innerHTML = '<p>' + currentEp.steps[0] + '</p>';
+            showScreen('player');
+        }
+        function nextStep() {
+            if (!currentEp) return;
+            stepIdx++;
+            if (stepIdx >= currentEp.steps.length) {
+                document.getElementById('epBody').innerHTML = '<p style="font-weight:700;color:#1E90FF;">🎉 Great job joining in! You can play again or try another episode.</p>';
+                return;
+            }
+            document.getElementById('epBody').innerHTML = '<p>' + currentEp.steps[stepIdx] + '</p>';
+        }
+
+        // Navigation
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('nav button').forEach(b => {
+                b.classList.toggle('active', b.dataset.screen === id);
+            });
+            window.scrollTo(0,0);
+        }
+
+        // Language (simple demo)
+        const taglines = {
+            en: 'Music for every child, everywhere',
+            es: 'Música para cada niño, en todas partes',
+            fr: 'La musique pour chaque enfant, partout',
+            de: 'Musik für jedes Kind, überall',
+            pt: 'Música para cada criança, em todo lugar',
+            zh: '每个孩子的音乐，无处不在',
+            ar: 'موسيقى لكل طفل، في كل مكان',
+            hi: 'हर बच्चे के लिए संगीत, हर जगह'
+        };
+        document.getElementById('langSelect').addEventListener('change', (e) => {
+            document.getElementById('tagline').textContent = taglines[e.target.value] || taglines.en;
+            document.documentElement.lang = e.target.value;
+            if (e.target.value === 'ar') document.documentElement.dir = 'rtl';
+            else document.documentElement.dir = 'ltr';
+        });
+
+        // PWA install
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBanner').classList.add('show');
+        });
+        document.getElementById('installBanner').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                document.getElementById('installBanner').classList.remove('show');
+            }
+        });
+
+        // Service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>
