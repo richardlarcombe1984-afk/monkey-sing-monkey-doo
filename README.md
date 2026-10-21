@@ -4,30 +4,31 @@
 
 A global children's music education & entertainment Progressive Web App for ages 3–8.
 
-## Features
-- Interactive mini series (Episodes 1–3 + 5–8)
+## Features (v2)
+- Interactive mini series (Episodes 1–3 + 5–8) with progress tracking
 - Rhythm play game with sound & vibration
-- Songs and call-and-response
+- Songs with lyrics loading + audio placeholder support
 - Calm Space with Lola (breathing + feelings)
-- 8 languages (EN, ES, FR, DE, PT, ZH, AR, HI)
-- Installable on phone, tablet and computer
-- Offline support
+- 8 languages (taglines)
+- Installable PWA with improved offline caching
+- Local progress saved in the browser
 
-## Open the App (one click)
+## Asset placeholders
+Drop real files into:
+- `data/songs/*.mp3`
+- `data/lyrics/*.txt`
+- `assets/icons/` (for PWA icons)
 
+See `assets/README.md` and `data/songs.json`.
+
+## Open the App
 **https://richardlarcombe1984-afk.github.io/monkey-sing-monkey-doo/**
 
-If you see a 404 page the first time:
-1. Go to the repository → **Settings** → **Pages**
-2. Under “Source” choose **Deploy from a branch**
-3. Branch: **main** / folder: **/ (root)** → Save
-4. Wait 1–2 minutes, then refresh the link above
+(Or the private Netlify deploy.)
 
-## How to Install on any device
-- **Android**: Open the link in Chrome → menu (⋮) → **Install app** or **Add to Home screen**
-- **iPhone / iPad**: Open in **Safari** → Share button → **Add to Home Screen**
-- **Computer (Windows/Mac)**: Open in Chrome or Edge → click the install icon in the address bar
-
-Once installed it works offline and feels like a real app.
+## How to Install
+- **Android**: Chrome → menu → Install app / Add to Home screen
+- **iPhone**: Safari → Share → Add to Home Screen
+- **Desktop**: Chrome/Edge install icon
 
 Made with ❤️ for children everywhere.
