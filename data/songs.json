@@ -1,0 +1,40 @@
+{
+  "songs": [
+    {
+      "id": "welcome",
+      "title": "Welcome Song",
+      "character": "CJ",
+      "audio": "data/songs/welcome.mp3",
+      "lyrics": "data/lyrics/welcome.txt",
+      "duration": "1:30",
+      "episode": 1
+    },
+    {
+      "id": "studio",
+      "title": "Song Studio Groove",
+      "character": "Diko",
+      "audio": "data/songs/studio.mp3",
+      "lyrics": "data/lyrics/studio.txt",
+      "duration": "1:45",
+      "episode": 2
+    },
+    {
+      "id": "lullaby",
+      "title": "Lola’s Lullaby",
+      "character": "Lola",
+      "audio": "data/songs/lullaby.mp3",
+      "lyrics": "data/lyrics/lullaby.txt",
+      "duration": "2:00",
+      "episode": 3
+    },
+    {
+      "id": "rainy",
+      "title": "Rainy Day Band",
+      "character": "CJ",
+      "audio": "data/songs/rainy.mp3",
+      "lyrics": "data/lyrics/rainy.txt",
+      "duration": "1:20",
+      "episode": 5
+    }
+  ]
+}
