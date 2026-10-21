@@ -1,8 +1,13 @@
-const CACHE_NAME = 'monkey-sing-v1';
+const CACHE_NAME = 'monkey-sing-v2';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './data/songs.json',
+  './data/lyrics/welcome.txt',
+  './data/lyrics/studio.txt',
+  './data/lyrics/lullaby.txt',
+  './data/lyrics/rainy.txt'
 ];
 
 self.addEventListener('install', (event) => {
